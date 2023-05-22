@@ -1,0 +1,267 @@
+  {% extends "base.html" %}
+  {% block content %}
+
+  <div id="loggedInContent" class = "table-container-fluid">
+    <!-- First Section -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">
+        <img src="https://media.discordapp.net/attachments/480846247985414145/1107740795945107606/logo.png"  alt="">
+      </a>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="usernameLabel" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Username
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#" id="logoutButton" onclick="logout();">Logout</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    
+    <!-- Second Section -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="navbar-nav" id="navbarNav2">
+        <a class="nav-item nav-link active" id="nav-personnel-tab" data-toggle="tab" href="#nav-personnel" role="tab" aria-controls="nav-personnel" aria-selected="true">Active Personnel</a>
+        <a class="nav-item nav-link" id="nav-requests-tab" data-toggle="tab" href="#nav-requests" role="tab" aria-controls="nav-requests" aria-selected="false">Active Travel Requests</a>
+      </div>
+    </nav>
+
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-personnel" role="tabpanel" aria-labelledby="nav-personnel-tab">
+      <body>
+        test test test
+      </body>
+    </div>
+    <div class="tab-pane fade" id="nav-requests" role="tabpanel" aria-labelledby="nav-requests-tab">
+      <div style="width: 100%" class="container-fluid">
+
+        <h3 class="my-3">Active Travel Requests</h3>
+        <table id = "myTable" class="table table-striped">
+          <thead>
+            <tr>
+              <th class = "col1">Request<BR>Type</th>
+              <th class = "col2">Trip<BR>Number</th>
+              <th class = "col3">PIRS ID</th>
+              <th class = "col4">SEP ID</th>
+              <th class = "col5">Personnel<BR>Name</th>
+              <th class = "col6">Task Order</th>
+              <th class = "col7">Depature /<BR> Pick Up<BR>Location</th>
+              <th class = "col8">Arrival /<BR>Destination /<BR>Drop-off<BR>Location</th>
+              <th class = "col9">Arrival /<BR>Check-out /<BR>Drop-off<BR>Date</th>
+              <th class = "col10">Departure /<BR>Check-in<BR>Date</th>
+              <th class = "col11">Status</th>
+              <th class = "col12">Created By</th>
+            </tr>
+          </thead>
+          <tbody id = "myTable">
+            {% for travel_request in travel_requests %}
+                <tr>
+                  <td>{{ travel_request.request_type }}</td>
+                  <td><a href="{{ url_for('travel_request', id=travel_request.trip_number) }}">{{ travel_request.trip_number }}</a></td>
+                  <td>{{ travel_request.employee_id }}</td>
+                  <td>{{ travel_request.traveller_number }}</td>
+                  <td>{{ travel_request.personnel_name }}</td>
+                  <td>{{ travel_request.task_order }}</td>
+                  <td>{{ travel_request.departure_location }}</td>
+                  <td>{{ travel_request.arrival_location }}</td>
+                  <td>{{ travel_request.arrival_date }}</td>
+                  <td>{{ travel_request.checkin_date if travel_request.checkin_date is not none else 'N/A' }}</td>
+                  <td>{{ travel_request.booking_status }}</td>
+                  <td>{{ travel_request.created_by }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>        
+        </table>
+      
+    </div>
+    </div>
+  </div>
+  
+    <script>
+$(document).ready(function() {
+    $('#myTable thead tr').clone(true).appendTo( '#myTable thead' );
+    $('#myTable thead tr:eq(1) th').each( function (i) {
+      var title = $(this).text();
+      $(this).html('<input type="text" placeholder="Enter Criteria" class="form-control" style="font-size: 0.8em; width: 80%;" />');
+
+      $( 'input', this )
+      .on( 'keyup change', function () {
+        if ( table.column(i).search() !== this.value ) {
+          table
+            .column(i)
+            .search( this.value )
+            .draw();
+        }
+      })
+      .on('focus', function() {
+        $(this).css({
+          'border-color': '#ff0000e1',
+          'box-shadow': '0 0 10px rgba(255, 0, 0, 0.77)'
+        });
+      })
+      .on('blur', function() {
+        $(this).css({
+          'border-color': '',
+          'box-shadow': ''
+        });
+      });
+    });
+
+    var table = $('#myTable').DataTable({
+      orderCellsTop: true,
+      fixedHeader: true,
+      responsive: true,
+      lengthChange: false,
+      language: {
+        paginate: {
+          previous: "<i class='bi bi-skip-backward-fill'></i>",
+          next: "<i class='bi bi-skip-forward-fill'></i>",
+        },
+      },
+      drawCallback: function() {
+        $(".paginate_button.current").css({
+          "background": "#B08D57", 
+            "border": "none",
+            "font-family": "'Times New Roman'", 
+            "font-weight": "bold",
+            "border-radius": "5px", 
+            "margin-right": "10px",
+            "margin-left": "10px",
+        });
+      },
+    });
+
+    // Move pagination controls
+    $('.dataTables_paginate').css({
+      "position": "absolute",
+      "left": "30px"
+    });
+});
+
+    </script>
+    
+
+
+
+    <script>
+        var firebaseConfig = {
+              apiKey: "",
+              authDomain: "",
+              projectId: "",
+              storageBucket: "",
+              messagingSenderId: "",
+              appId: "",
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp({firebaseConfig});
+        } else {
+            firebase.app(); // if already initialized, use that one
+        }
+      
+        // Define Login Function
+        function login() {
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+      
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    var user = userCredential.user;
+                    user.getIdToken().then(function(idToken) {
+                    fetch('/verifyIdToken', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({idToken: idToken})
+                    })
+                    /*
+                    // Delay the page reload by a few seconds
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000);
+                    */
+      });
+      
+                })
+                .catch((error) => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    document.getElementById('loginError').innerHTML = "<div class='error-text'> <b>Error:</b><div class='error-message'>&bull; Invalid email or password.</div>";
+                });
+        }
+      
+        // Define logout function
+        function logout() {
+            firebase.auth().signOut()
+                .then(() => {
+                    // Sign-out successful.
+                    // Redirect to login page after successful logout
+                    window.location.href = "/login";
+                })
+                .catch((error) => {
+                    // An error happened.
+                });
+        }
+
+      
+        // Event listener
+        firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          // User is signed in.
+          console.log(user);  // This will print the user object to the console.
+          
+          var username = user.displayName
+
+          console.log("Username: ", username);  // This will print the username to the console.
+
+          var usernameLabel = document.getElementById('usernameLabel');
+          if (usernameLabel) {
+            usernameLabel.innerText = username;
+          }
+        } else {
+          // User is signed out.
+          console.log('User is signed out or not logged in.');
+          window.location.href = "/login";
+        }
+      });
+
+
+      
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        .then(function() {
+            // Existing and future Auth states are now persisted in the current
+            // session only. Closing the window would clear any existing state even
+            // if a user forgets to sign out.
+            // ...
+        })
+        .catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+        });
+      
+        // JavaScript in your front-end
+        var currentUser = firebase.auth().currentUser;
+
+        if (currentUser) {
+            currentUser.getIdTokenResult()
+                .then((idTokenResult) => {
+                    // Confirm the user is an Employee.
+                    if (!!idTokenResult.claims.employeeNumber) {
+                        console.log('The employee number is: ', idTokenResult.claims.employeeNumber);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+
+    </script>
+
+    
+  {% endblock %}
