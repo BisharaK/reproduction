@@ -15,7 +15,7 @@ from travel_request import get_all_travel_requests, create_travel_request, get_t
 from firebase_admin import firestore
 
 app = Flask(__name__)
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+app.secret_key = 
 
 # Firebase config
 bucket = storage.bucket()
